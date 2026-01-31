@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 1 Month! ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500&family=Sacramento&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fdf6f0;
+            color: #5d5d5d;
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+
+        .particle {
+            position: fixed;
+            top: -10%;
+            font-size: 20px;
+            user-select: none;
+            z-index: -1;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(212, 163, 115, 0.15);
+            max-width: 350px;
+            text-align: center;
+            border: 2px solid #fff;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 1.5s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn { 
+            from {opacity: 0; transform: translateY(20px);} 
+            to {opacity: 1; transform: translateY(0);} 
+        }
+
+        h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 2.8rem;
+            color: #d4a373;
+            margin: 5px 0;
+        }
+
+        /* Countdown Box */
+        #countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            background: #fff;
+            padding: 12px;
+            border-radius: 15px;
+            border: 1px dashed #d4a373;
+        }
+        .number { font-weight: 500; font-size: 1rem; color: #bfa29e; display: block;}
+        .label { font-size: 0.55rem; text-transform: uppercase; color: #888; }
+
+        /* Foto Frame */
+        .photo-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: 0.3s;
+            border: 5px solid white;
+        }
+        .photo-wrapper:hover { transform: scale(1.03) rotate(-2deg); }
+        .photo-wrapper img { width: 100%; display: block; }
+
+        .hint { font-size: 0.7rem; color: #d4a373; font-style: italic; margin-bottom: 10px; }
+
+        /* Tombol Musik */
+        .music-btn {
+            background: #adc178;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .music-btn:hover { background: #96aa66; transform: scale(1.02); }
+
+        /* Pop-up Pesan */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 25px;
+            text-align: center; max-width: 280px; animation: pop 0.3s ease;
+        }
+        @keyframes pop { from {transform: scale(0.8);} to {transform: scale(1);} }
+
+        .close-modal {
+            background: #d4a373; color: white; border: none;
+            padding: 8px 20px; border-radius: 15px; margin-top: 15px; cursor: pointer;
+        }
+    </style>
+</head>
+<body onload="startApp()">
+
+    <div class="card">
+        <h1>Hari Bersamanya</h1>
+        
+        <div id="countdown">
+            <div class="time-segment"><span class="number" id="days">0</span><span class="label">Hari</span></div>
+            <div class="time-segment"><span class="number" id="hours">0</span><span class="label">Jam</span></div>
+            <div class="time-segment"><span class="number" id="minutes">0</span><span class="label">Menit</span></div>
+            <div class="time-segment"><span class="number" id="seconds">0</span><span class="label">Detik</span></div>
+        </div>
+
+        <div class="photo-wrapper" onclick="openSecret()">
+            <img src="foto-kamu.png" alt="Foto Kita">
+        </div>
+        <div class="hint">"Klik fotonya, ada pesan rahasia..."</div>
+
+        <button class="music-btn" onclick="toggleMusic()" id="musicBtn">🎵 Putar Lagu Kita</button>
+        
+        <p style="font-size: 0.6rem; color: #bfa29e; margin-top: 15px;">Happy 1st Month, Sayang! ❤️</p>
+    </div>
+
+    <div id="secretModal" class="modal">
+        <div class="modal-content">
+            <p style="font-size: 2rem;">🧸</p>
+            <p id="pesan">Satu bulan ini luar biasa karena ada kamu. Makasih ya udah sabar dan selalu bikin aku senyum. Tetap sama-sama terus ya! 🍦</p>
+            <button class="close-modal" onclick="closeSecret()">Tutup (Peluk 🤗)</button>
+        </div>
+    </div>
+
+    <audio id="mySong" loop>
+        <source src="hari-bersamanya.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 1. ATUR TANGGAL JADIAN (Tahun, Bulan-1, Tanggal)
+        // Januari = 0, Februari = 1, dst.
+        const jadian = new Date(2026, 0, 1).getTime(); 
+
+        function startApp() {
+            createParticles();
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function updateTime() {
+            const diff = new Date().getTime() - jadian;
+            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000);
+        }
+
+        function createParticles() {
+            const emojis = ['❤️', '🌸', '✨', '🤍', '🌼'];
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.classList.add('particle');
+                p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 5000);
+            }, 600);
+        }
+
+        var song = document.getElementById("mySong");
+        var btn = document.getElementById("musicBtn");
+
+        function toggleMusic() {
+            if (song.paused) {
+                song.play().catch(() => alert("Klik di mana saja dulu baru putar musiknya ya!"));
+                btn.innerText = "⏸ Pause Lagu";
+            } else {
+                song.pause();
+                btn.innerText = "🎵 Putar Lagu Kita";
+            }
+        }
+
+        function openSecret() { document.getElementById("secretModal").style.display = "flex"; }
+        function closeSecret() { document.getElementById("secretModal").style.display = "none"; }
+    </script>
+</body>
+</html>
